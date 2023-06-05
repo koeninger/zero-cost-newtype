@@ -37,7 +37,7 @@ macro_rules! newtype {
     ($n:ident, $t:ty, #[$m:meta], $impls:block) => {
         #[$m]
         #[repr(transparent)]
-        pub struct $n($t);
+        pub struct $n(pub $t);
 
         #[macro_export]
         macro_rules! $n {
