@@ -11,7 +11,8 @@ mod types {
     // you want everything in scope because the macros use custom_derive
     use zero_cost_newtype::*;
 
-    // in debug mode this is `struct Price(i32)`, in release mode `type Price = i32`
+    // in debug mode this is `struct Price(i32)` and a macro Price! as a constructor
+    // in release mode `type Price = i32`
     newtype! { Price i32 [Debug, Clone, Copy, PartialEq, NewtypeAdd] }
 }
 
