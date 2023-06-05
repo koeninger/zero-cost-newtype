@@ -1,9 +1,15 @@
+#[allow(unused_imports)]
+#[macro_use] extern crate newtype_derive;
+
 // Release mode, just a type alias, cast is a no-op
 #[cfg(not(debug_assertions))]
 #[allow(unused_macros)]
+#[macro_export]
 macro_rules! newtype {
     ($n:ident, $t:ty, #[$m:meta], $impls:block) => {
-        type $n = $t;
+        pub type $n = $t;
+
+        #[macro_export]
         macro_rules! $n {
             ($x:expr) => {
                 $x
@@ -16,6 +22,7 @@ macro_rules! newtype {
 
 #[cfg(not(debug_assertions))]
 #[allow(unused_macros)]
+#[macro_export]
 macro_rules! cast {
     ($x:expr) => {
         $x
@@ -25,11 +32,14 @@ macro_rules! cast {
 // Development mode, tuple struct, cast extracts the underlying type
 #[cfg(debug_assertions)]
 #[allow(unused_macros)]
+#[macro_export]
 macro_rules! newtype {
     ($n:ident, $t:ty, #[$m:meta], $impls:block) => {
         #[$m]
         #[repr(transparent)]
-        struct $n($t);
+        pub struct $n($t);
+
+        #[macro_export]
         macro_rules! $n {
             ($x:expr) => {
                 $n($x)
@@ -41,6 +51,7 @@ macro_rules! newtype {
 
 #[cfg(debug_assertions)]
 #[allow(unused_macros)]
+#[macro_export]
 macro_rules! cast {
     ($x:expr) => {
         ($x).0
@@ -49,19 +60,11 @@ macro_rules! cast {
 
 #[cfg(test)]
 mod tests {
-    #[allow(unused_imports)]
-    use std::ops::Add;
-
     #[allow(dead_code)]
     #[test]
     fn it_works() {
         newtype!(Price, i32, #[derive(Debug, Clone, Copy, PartialEq)], {
-            impl Add for Price {
-                type Output = Self;
-                fn add(self, other: Self) -> Self {
-                    Price(self.0 + other.0)
-                }
-            }
+            NewtypeAdd! { () pub struct Price(i32); }
         });
         let p = Price!(23);
         let p2 = Price!(7);
