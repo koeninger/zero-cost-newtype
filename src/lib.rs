@@ -1,8 +1,9 @@
 #[allow(unused_imports)]
 #[macro_use] extern crate newtype_derive;
+pub use newtype_derive::*;
 #[allow(unused_imports)]
 #[macro_use] extern crate custom_derive;
-
+pub use custom_derive::custom_derive;
 
 // Release mode, just a type alias, cast is a no-op
 #[cfg(not(debug_assertions))]
