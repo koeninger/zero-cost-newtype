@@ -1,12 +1,15 @@
 #[allow(unused_imports)]
 #[macro_use] extern crate newtype_derive;
+#[allow(unused_imports)]
+#[macro_use] extern crate custom_derive;
+
 
 // Release mode, just a type alias, cast is a no-op
 #[cfg(not(debug_assertions))]
 #[allow(unused_macros)]
 #[macro_export]
 macro_rules! newtype {
-    ($n:ident, $t:ty, #[$m:meta], $impls:block) => {
+    { $n:ident $t:ty [$($m:ident),*] } => {
         pub type $n = $t;
 
         #[macro_export]
@@ -15,7 +18,7 @@ macro_rules! newtype {
                 $x
             };
         }
-        // skip meta and impls in release mode;
+        // skip derives in release mode;
         // it wouldn't work for primitive types.
     };
 }
@@ -34,10 +37,12 @@ macro_rules! cast {
 #[allow(unused_macros)]
 #[macro_export]
 macro_rules! newtype {
-    ($n:ident, $t:ty, #[$m:meta], $impls:block) => {
-        #[$m]
-        #[repr(transparent)]
-        pub struct $n(pub $t);
+    { $n:ident $t:ty [$($m:ident),*] } => {
+        custom_derive! {
+            #[derive($($m),*)]
+            #[repr(transparent)]
+            pub struct $n(pub $t);
+        }
 
         #[macro_export]
         macro_rules! $n {
@@ -45,7 +50,6 @@ macro_rules! newtype {
                 $n($x)
             };
         }
-        $impls
     };
 }
 
@@ -60,13 +64,17 @@ macro_rules! cast {
 
 #[cfg(test)]
 mod tests {
+    mod test_types {
+        newtype!{
+            Price i32 [Debug, Clone, Copy, PartialEq, NewtypeAdd]
+        }
+    }
     #[allow(dead_code)]
     #[test]
     fn it_works() {
-        newtype!(Price, i32, #[derive(Debug, Clone, Copy, PartialEq)], {
-            NewtypeAdd! { () pub struct Price(i32); }
-        });
-        let p = Price!(23);
+        use test_types::*;
+        use crate::*;
+        let p: Price = Price!(23);
         let p2 = Price!(7);
         assert_eq!(p + p2, Price!(30));
 
