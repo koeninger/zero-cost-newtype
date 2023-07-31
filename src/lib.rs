@@ -12,7 +12,7 @@ pub use newtype_derive_2018::*;
 macro_rules! newtype {
     {
         $(#[$($attrs:tt)*])*
-        $n:ident $t:ty
+        $n:ident: $t:ty
     } => {
         pub type $n = $t;
 
@@ -43,7 +43,7 @@ macro_rules! cast {
 macro_rules! newtype {
     {
         $(#[$($attrs:tt)*])*
-        $n:ident $t:ty
+        $n:ident: $t:ty
     } => {
         macro_attr! {
             $(#[$($attrs)*])*
@@ -76,7 +76,7 @@ mod tests {
         use serde::{Deserialize, Serialize};
         newtype!{
             #[derive(Debug, Clone, Copy, PartialEq, NewtypeAdd!, NewtypeDisplay!, Serialize, Deserialize)]
-            Price i32
+            Price: i32
         }
     }
 
