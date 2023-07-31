@@ -6,5 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-custom_derive = "0.1.7"
-newtype_derive = "0.1.6"
+newtype-derive-2018 = "0.1.0"
+macro-attr-2018 = "3.0.0"
+
+[dev-dependencies]
+serde = { version = "1.0.178", features = ["derive"] }
+serde_json = "1.0.104"

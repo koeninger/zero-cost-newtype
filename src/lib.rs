@@ -1,16 +1,19 @@
 #[allow(unused_imports)]
-#[macro_use] extern crate newtype_derive;
-pub use newtype_derive::*;
+#[macro_use] extern crate macro_attr_2018;
+pub use macro_attr_2018::macro_attr;
 #[allow(unused_imports)]
-#[macro_use] extern crate custom_derive;
-pub use custom_derive::custom_derive;
+#[macro_use] extern crate newtype_derive_2018;
+pub use newtype_derive_2018::*;
 
 // Release mode, just a type alias, cast is a no-op
 #[cfg(not(debug_assertions))]
 #[allow(unused_macros)]
 #[macro_export]
 macro_rules! newtype {
-    { $n:ident $t:ty [$($m:ident),*] } => {
+    {
+        $(#[$($attrs:tt)*])*
+        $n:ident $t:ty
+    } => {
         pub type $n = $t;
 
         #[macro_export]
@@ -38,9 +41,12 @@ macro_rules! cast {
 #[allow(unused_macros)]
 #[macro_export]
 macro_rules! newtype {
-    { $n:ident $t:ty [$($m:ident),*] } => {
-        custom_derive! {
-            #[derive($($m),*)]
+    {
+        $(#[$($attrs:tt)*])*
+        $n:ident $t:ty
+    } => {
+        macro_attr! {
+            $(#[$($attrs)*])*
             #[repr(transparent)]
             pub struct $n(pub $t);
         }
@@ -66,11 +72,14 @@ macro_rules! cast {
 #[cfg(test)]
 mod tests {
     mod test_types {
+        #[allow(unused_imports)]
+        use serde::{Deserialize, Serialize};
         newtype!{
-            Price i32 [Debug, Clone, Copy, PartialEq, NewtypeAdd]
+            #[derive(Debug, Clone, Copy, PartialEq, NewtypeAdd!, NewtypeDisplay!, Serialize, Deserialize)]
+            Price i32
         }
     }
-    #[allow(dead_code)]
+
     #[test]
     fn it_works() {
         use test_types::*;
@@ -85,4 +94,15 @@ mod tests {
         let result = 42 + cast!(p);
         assert_eq!(result, 65);
     }
+
+    #[test]
+    fn serde_ok() {
+        use test_types::*;
+        use crate::*;
+        let p: Price = Price!(23);
+        let j = serde_json::to_string(&p).unwrap();
+        let d: Price = serde_json::from_str(&j).unwrap();
+        assert_eq!(p, d);
+    }
+
 }
