@@ -1,12 +1,3 @@
-The newtype pattern in Rust won't always generate the same code as the equivalent primitive type, https://blog.polybdenum.com/2021/08/09/when-zero-cost-abstractions-aren-t-zero-cost.html
-
-This library provides macros to work around that.  It generates a typesafe tuple struct in debug mode, and a type alias in release mode which should perform exactly the same as the primitive type.
-
-All of the operators from [newtype_derive_2018](https://docs.rs/newtype-derive-2018/latest/newtype_derive_2018/) are available.
-
-Example:
-
-```
 mod types {
     // you want everything in scope because the macro expansion depends on macro_attr_2018
     use zero_cost_newtype::*;
@@ -42,4 +33,3 @@ fn main() {
     let result = 42 + cast!(p);
     assert_eq!(result, 65);
 }
-```
